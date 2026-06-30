@@ -6,9 +6,11 @@ import { formatCurrency, shortDate } from "../lib/format";
 
 export default function TransactionList() {
   const { transactions, removeTransaction } = useTransactions();
-  const sorted = [...transactions].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
+  const sorted = [...transactions].sort((a, b) => {
+    const ta = new Date(a.createdAt || a.date).getTime();
+    const tb = new Date(b.createdAt || b.date).getTime();
+    return tb - ta;
+  });
 
   return (
     <motion.section

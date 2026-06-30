@@ -1,0 +1,100 @@
+{
+  "theme": "light",
+  "archetype": "1 (Organic & Earthy)",
+  "typography": {
+    "fonts": [
+      {
+        "family": "Cormorant Garamond",
+        "type": "heading",
+        "usage": "H1, H2, H3, large stat numbers",
+        "url": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap"
+      },
+      {
+        "family": "Manrope",
+        "type": "body",
+        "usage": "Body text, labels, forms, UI elements",
+        "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&display=swap"
+      }
+    ],
+    "rules": {
+      "headings": "Left-aligned, tracking-tight for large text, never centered unless specific card. Use font-medium or font-semibold for numbers. Must use Cormorant Garamond.",
+      "body": "leading-relaxed, tracking-normal, highly legible. Must use Manrope."
+    }
+  },
+  "colors": {
+    "background": {
+      "main": "#F9F9F7",
+      "surface": "rgba(255, 255, 255, 0.60)"
+    },
+    "text": {
+      "primary": "#1A1A18",
+      "secondary": "#5E5E5A",
+      "tertiary": "#8F8F8A"
+    },
+    "status": {
+      "income": "#4C7A5D",
+      "expense": "#A25F56",
+      "neutral": "#D9D9D6"
+    },
+    "border": "rgba(28, 28, 26, 0.08)"
+  },
+  "layout": {
+    "spacing": "Generous padding (p-6, p-8, p-12) on containers. Tailwind spacing scale.",
+    "structure": "Bento 'Control Room' grid for the dashboard. 3 columns max on desktop. Sidebar or asymmetric layout.",
+    "alignment": "Asymmetric, heavily left-aligned to provide optical clarity.",
+    "surface": "Glassmorphism ('Crystal' variant) for all cards over the 3D background. Use classes: `bg-white/60 backdrop-blur-2xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)] rounded-3xl`"
+  },
+  "components": {
+    "cards": "Cardless feel but with glass boundaries. No harsh shadows. Border radius 24px (rounded-3xl). Inside padding must be generous (p-6 or p-8).",
+    "buttons": "Pill-shaped (rounded-full). Dark charcoal background with white text for primary actions. Hover states lift slightly (-translate-y-0.5).",
+    "inputs": "Clean lines, border-b only or subtle rounded-xl with light bg. Focus ring is essential. Use Shadcn-like logic but style organically.",
+    "charts": "Recharts with transparent backgrounds, thick lines/bars matching the income/expense colors. No grid lines or very faint lines to keep it organic."
+  },
+  "threejs_concept": {
+    "description": "An interactive, slow-rotating organic blob (Sphere with MeshDistortMaterial) sitting in the background. It serves as a 'Wealth Aura' and provides the visual heartbeat of the app.",
+    "reaction_rules": "Balance > 0: Blob expands, distorts smoothly, and glows softly with Sage green (#4C7A5D). Balance <= 0: Blob shrinks, distortion gets slightly erratic, colors shift to Terracotta (#A25F56). On new transaction: A quick scale pulse/ripple.",
+    "technical_stack": "@react-three/fiber, @react-three/drei (MeshDistortMaterial), framer-motion-3d (optional) or useFrame for math."
+  },
+  "motion": {
+    "page_load": "Staggered fade up (y: 20, opacity: 0 to 1) for dashboard cards using framer-motion.",
+    "hover": "Subtle scale-up for interactive elements.",
+    "transitions": "Spring animations for layout changes."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc4MjcyNzk2MXww&ixlib=rb-4.1.0&q=85",
+        "category": "user_avatar",
+        "description": "Profile picture of user for the top header"
+      }
+    ]
+  },
+  "dependencies_to_install": [
+    "@react-three/fiber",
+    "@react-three/drei",
+    "three",
+    "recharts",
+    "framer-motion",
+    "lucide-react",
+    "clsx",
+    "tailwind-merge",
+    "date-fns"
+  ],
+  "accessibility": {
+    "data_testid_rule": "All buttons, inputs, list items, and key textual elements must have data-testid attributes (e.g. data-testid='add-transaction-button').",
+    "contrast": "Ensure text over glassmorphism meets APCA contrast standards."
+  },
+  "instructions_to_main_agent": [
+    "Initialize a React app if not already present. Install all listed dependencies using yarn.",
+    "Import Google Fonts: Cormorant Garamond and Manrope in the main HTML/CSS.",
+    "Set up Tailwind CSS configuration incorporating the custom colors and fonts.",
+    "Create a Data Context or Zustand store to manage transactions array, balance calculation, and total income/expenses. Data MUST be saved to localStorage.",
+    "Create a ThreeJSBackground component wrapping a Canvas. Render a Sphere with MeshDistortMaterial from drei. Tie its color/distort/scale to the user's balance via the shared state. Place this fixed at the back (z-[-1]).",
+    "Build the dashboard layout: Left side with large balance display and 'Add Transaction' form. Right side with 'Bento' style glassmorphism cards for Charts (Donut for categories, Area/Line for spending over time) and Recent Transactions list.",
+    "Build an 'Add Transaction' form with fields: Type (Income/Expense), Category, Amount, Note, Date. Categories should be distinct for Income vs Expense.",
+    "Implement transaction deletion from the list.",
+    "Use Recharts for the AreaChart (Income/Expense trends) and PieChart (Categories). Customize their tooltips and remove default cartesian grid lines.",
+    "Include an 'Export to CSV' button that dynamically generates a data URI from the transactions array and downloads a file.",
+    "Apply Framer Motion to animate the UI elements on load with a staggered effect."
+  ]
+}

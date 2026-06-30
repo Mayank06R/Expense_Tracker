@@ -2,73 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Hisaab — Indigo Twilight theme
+   Deep indigo-black canvas with saffron/gold accents and emerald/coral status.
+   ────────────────────────────────────────────────────────────────────────── */
+
 :root {
-    /* Organic & Earthy palette */
-    --bg: #f9f9f7;
-    --bg-elev: rgba(255, 255, 255, 0.62);
-    --ink: #1a1a18;
-    --ink-soft: #5e5e5a;
-    --ink-mute: #8f8f8a;
-    --line: rgba(28, 28, 26, 0.08);
-    --sage: #4c7a5d;
-    --terracotta: #a25f56;
-    --sand: #e8e2d2;
-    --paper: #f1efe7;
+    --bg: #07080f;
+    --bg-2: #0a0c18;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-elev: rgba(255, 255, 255, 0.06);
+    --ink: #f5f2ea;
+    --ink-soft: #b9b7af;
+    --ink-mute: #7a7a83;
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(255, 255, 255, 0.14);
+    --saffron: #ff8b3d;
+    --gold: #f4c95d;
+    --marigold: #e89b3a;
+    --emerald: #10b981;
+    --emerald-soft: rgba(16, 185, 129, 0.14);
+    --coral: #ff5c5c;
+    --coral-soft: rgba(255, 92, 92, 0.14);
+    --teal: #2dd4bf;
+    --violet: #a78bff;
+    --indigo: #6366f1;
 }
 
 html,
-body {
-    margin: 0;
+body,
+#root {
     background: var(--bg);
     color: var(--ink);
-    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    min-height: 100%;
+    margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0;
+    font-family:
+        "Manrope",
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+    overflow-x: hidden;
 }
 
 body {
-    background-image:
+    background:
         radial-gradient(
-            1200px 600px at 85% -10%,
-            rgba(76, 122, 93, 0.08),
+            1200px 700px at 85% -10%,
+            rgba(255, 139, 61, 0.12),
             transparent 60%
         ),
         radial-gradient(
-            900px 500px at -10% 90%,
-            rgba(162, 95, 86, 0.08),
+            900px 600px at -10% 110%,
+            rgba(45, 212, 191, 0.10),
             transparent 60%
-        );
+        ),
+        radial-gradient(
+            600px 400px at 50% 50%,
+            rgba(99, 102, 241, 0.06),
+            transparent 70%
+        ),
+        var(--bg);
     background-attachment: fixed;
 }
 
 .font-serif {
     font-family: "Cormorant Garamond", ui-serif, Georgia, serif;
-    font-feature-settings:
-        "ss01",
-        "liga";
+    font-feature-settings: "ss01", "liga";
 }
 .font-sans {
     font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
+.font-mono {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
 
-/* Glass surface */
+/* Glass surfaces */
 .glass {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(24px) saturate(120%);
-    -webkit-backdrop-filter: blur(24px) saturate(120%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow: 0 8px 32px rgba(28, 28, 26, 0.05);
-}
-
-.hairline {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
     border: 1px solid var(--line);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 30px 60px -20px rgba(0, 0, 0, 0.5);
+}
+.glass-strong {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.03) 100%
+    );
+    backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--line-strong);
 }
 
-/* Custom selection */
+/* Selection */
 ::selection {
-    background: #1a1a18;
-    color: #f9f9f7;
+    background: var(--saffron);
+    color: #0a0b14;
 }
 
 /* Scrollbar */
@@ -76,58 +113,54 @@ body {
     width: 6px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
-    background: rgba(28, 28, 26, 0.18);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 999px;
 }
 
-/* Subtle grain overlay */
+/* Grain overlay */
 .grain::after {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.045;
+    opacity: 0.04;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.9'/></svg>");
-    mix-blend-mode: multiply;
+    mix-blend-mode: overlay;
 }
 
-/* Shadcn token bridge (light) */
+/* shadcn token bridge — dark */
 @layer base {
     :root {
-        --background: 60 9% 97%;
-        --foreground: 40 5% 10%;
-        --card: 0 0% 100%;
-        --card-foreground: 40 5% 10%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 40 5% 10%;
-        --primary: 40 5% 10%;
-        --primary-foreground: 60 9% 97%;
-        --secondary: 45 18% 92%;
-        --secondary-foreground: 40 5% 10%;
-        --muted: 45 18% 92%;
-        --muted-foreground: 40 5% 36%;
-        --accent: 142 24% 38%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 8 31% 49%;
-        --destructive-foreground: 60 9% 97%;
-        --border: 40 5% 88%;
-        --input: 40 5% 88%;
-        --ring: 142 24% 38%;
-        --chart-1: 142 24% 38%;
-        --chart-2: 8 31% 49%;
-        --chart-3: 38 28% 60%;
-        --chart-4: 200 18% 36%;
-        --chart-5: 30 8% 40%;
+        --background: 230 30% 4%;
+        --foreground: 40 25% 95%;
+        --card: 230 30% 6%;
+        --card-foreground: 40 25% 95%;
+        --popover: 230 30% 6%;
+        --popover-foreground: 40 25% 95%;
+        --primary: 32 100% 62%;
+        --primary-foreground: 230 30% 6%;
+        --secondary: 230 20% 14%;
+        --secondary-foreground: 40 25% 95%;
+        --muted: 230 20% 14%;
+        --muted-foreground: 40 10% 68%;
+        --accent: 168 76% 50%;
+        --accent-foreground: 230 30% 6%;
+        --destructive: 0 84% 67%;
+        --destructive-foreground: 40 25% 95%;
+        --border: 0 0% 100% / 0.08;
+        --input: 230 20% 14%;
+        --ring: 32 100% 62%;
+        --chart-1: 32 100% 62%;
+        --chart-2: 168 76% 50%;
+        --chart-3: 158 64% 40%;
+        --chart-4: 0 84% 67%;
+        --chart-5: 48 90% 65%;
         --radius: 1rem;
     }
 }
 
 @layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
+    * { border-color: hsl(var(--border)); }
+    body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); }
 }

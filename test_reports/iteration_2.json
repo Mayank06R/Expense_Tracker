@@ -1,0 +1,42 @@
+{
+  "summary": "Frontend-only Hisaab expense tracker tested end-to-end via Playwright on the preview URL. 17 of 19 requested behaviors PASS. Two real issues remain: (A) Recent Transactions ordering — a newly-added expense with today's date does NOT appear at the top of Recent Transactions; the seeded 'today' rows still sort above it. (B) Adding an Income transaction (₹5000 freelance) does not change Available Balance or Savings Rate — those cards are computed from the configured monthlyIncome only, never from income-transaction totals. Everything else (3D background, header buttons, brand 'Hisaab', Spending Dashboard hero + Live chip, four stat cards with expected ₹ values, Edit Monthly Income to ₹90,000 + reload persistence, MTD Budget card showing ₹54,040 / ₹54,000 + 100.1% used + 4-over-budget alert listing Shopping/Entertainment/Transport/Housing, Daily Avg ₹1,801 with -7% chip, Largest ₹18,000 Housing/Rent Payment, Spending Habits 🥇 Housing ₹22,500 41.6% / 🥈 Shopping ₹13,846 25.6% / 🥉 Food & Dining ₹5,760 10.7%, 30 daily bars, Category Breakdown 3D Canvas rendering, Budget Progress with 'Over' on Shopping/Entertainment/Transport/Housing and 'At risk' on Healthcare, '4 over budget' chip, 5 Recent rows with Indian merchants, View All sheet opening with 33 items and closing cleanly, FAB opening dialog, expense add increments Total Spent by ₹250 and increases transaction count from 31→32, income category pills switch to Salary/Freelance/Bonus/Investment/Gift/Other, delete-from-recent removes the row, CSV download 'hisaab-2026-06-30.csv', Reset Demo restores 31 expenses, full localStorage persistence across reload) works. No runtime/page errors, no console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "lib/store.js seedTransactions + RecentTransactionsCard.jsx",
+        "issue": "New transactions do not appear at the top of Recent Transactions when the user is on the seed dataset. Seed sets each demo tx createdAt to `new Date(y, m, day, 12, 0, 0).toISOString()` (noon local, i.e. 12:00 UTC in this container) while addTransaction sets createdAt to `new Date().toISOString()` (real wall-clock, e.g. 08:07Z). RecentTransactionsCard sorts by `new Date(b.createdAt || b.date) - new Date(...)` desc. Result: seeded Amazon Prime (day-30 noon-UTC) sorts ABOVE the new Zomato dinner row (day-30 08:07-UTC), so the new row lands at position 2, not position 1. Reproduced: after `localStorage.clear()` and adding 250/food/'Zomato dinner TEST' via the FAB, the first li in [data-testid='recent-list'] is still 'Amazon Prime'.",
+        "selector": "[data-testid='recent-list'] li:first-child",
+        "priority": "HIGH"
+      },
+      {
+        "component": "lib/store.js stats (Available Balance + Savings Rate cards)",
+        "issue": "Adding an Income transaction has zero effect on Available Balance and Savings Rate. `available = monthlyIncome - mExpense` uses the configured monthlyIncome only; `mIncome` (sum of income transactions for the month) is computed but never used in any visible card. After adding ₹5,000 freelance income, Available Balance stayed ₹20,710 (27.6%) and Savings Rate stayed 27.6%. The user-supplied spec explicitly says these two cards must update when an income transaction is added.",
+        "selector": "[data-testid='available-balance-card'], [data-testid='savings-rate-card']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix Recent ordering: in store.js seedTransactions, use `new Date()` (current time) as createdAt for rows whose `day` equals today's day — OR — make RecentTransactionsCard sort key prefer `createdAt` only when it is monotonically newer than any seed timestamp (e.g., add a per-tx insertion counter and use it as the primary sort key, falling back to createdAt/date).",
+    "Fix Income → Available Balance / Savings Rate: either (1) add mIncome into the effective income used by the cards, e.g. `effectiveIncome = monthlyIncome + mIncome; available = effectiveIncome - mExpense; savingsRate = available / effectiveIncome`, OR (2) update the spec/UI copy to clarify that income transactions don't count and recommend using Edit Monthly Income instead. The user's test contract expects option (1)."
+  ],
+  "critical_code_review_comments": [
+    "store.js addTransaction spreads `tx` AFTER setting a default `date`, so a midnight-UTC date from <input type='date'> can still override the wall-clock default — combined with seed createdAt set to noon-UTC of each seed day, this causes the ordering bug above. A monotonic insertion counter would be the most robust tiebreaker.",
+    "store.js seed for 'current month' is hard-coded to current year/month at module load. If a user opens the app on day 5, seed rows for days 27-30 will sit in the *future* relative to today, which is confusing for a 'this month so far' dashboard and inflates dailyAvg.",
+    "stats.mIncome is computed but never displayed nor used in available/savingsRate — either remove the computation or use it.",
+    "AddTransactionDialog: form has `required` on amount + the JS toast.error branch — the browser-native `required` blocks submit before the JS toast fires, so the sonner 'Enter a valid amount' toast is effectively unreachable for the empty-amount case. Either drop `required` (let the JS toast handle it) or remove the dead toast.error code path.",
+    "store.js BUDGETS_KEY merges DEFAULT_BUDGETS over saved budgets on load — if the user explicitly sets a category budget to 0, it will be silently overwritten by the default on next reload."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only app)", "frontend": "~89% (17/19 spec items pass; ordering of new tx + income-impacts-balance fail)"},
+  "test_credentials": "N/A (no auth, no backend)",
+  "seed_data_creation": "Used localStorage.clear() + reload to get a fresh seed. One TEST_-style row ('Zomato dinner TEST') was added and then removed via Reset Demo at end-of-run.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "App is 100% frontend at https://budget-dash-3d.preview.emergentagent.com (REACT_APP_BACKEND_URL). All required data-testids exist. To start clean: page.evaluate(\"localStorage.clear()\") then reload. The container is UTC, so seeded createdAt 'noon-local' = 12:00 UTC. After the two HIGH-priority fixes land, re-test only: (1) add expense → first recent row is the new note; (2) add income → Available Balance + Savings Rate change. All other 17 behaviors are already verified green.",
+  "rca of the issue": "Ordering: seedTransactions uses mk(day, monthOffset, ...) which builds `new Date(y, m+monthOffset, day, 12, 0, 0)` and stores both `date` and `createdAt` as that noon-local ISO string. In a UTC-only container that becomes e.g. '2026-06-30T12:00:00.000Z'. addTransaction stores `createdAt: new Date().toISOString()` which at run time was '2026-06-30T08:05:XX.XXXZ' — earlier than the seeded same-day createdAt. RecentTransactionsCard sorts desc by createdAt||date, so seeded day-30 rows (noon-UTC) sort ABOVE the new tx (08:05Z). The new tx therefore sits at index 1, not index 0. Income impact: store.js computes `available = monthlyIncome - mExpense` and `savingsRate = available / monthlyIncome` using only the user-configured monthlyIncome; the sum of income-typed transactions (mIncome) is calculated but never folded into the formula, so adding any income transaction is a visual no-op for these two cards."
+}

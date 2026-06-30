@@ -7,23 +7,8 @@
 .three-canvas {
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     pointer-events: none;
-}
-
-@keyframes float-up {
-    from {
-        transform: translateY(10px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.float-in {
-    animation: float-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* Pill button */
@@ -31,7 +16,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.65rem 1.1rem;
+    padding: 0.6rem 1rem;
     border-radius: 999px;
     font-family: "Manrope", sans-serif;
     font-weight: 600;
@@ -41,125 +26,220 @@
         transform 0.2s ease,
         background-color 0.2s ease,
         color 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
     cursor: pointer;
     border: 1px solid transparent;
 }
-.btn-pill:hover {
-    transform: translateY(-1px);
-}
+.btn-pill:hover { transform: translateY(-1px); }
+.btn-pill:active { transform: translateY(0); }
+.btn-pill:disabled { opacity: 0.5; pointer-events: none; }
+
 .btn-primary {
-    background: #1a1a18;
-    color: #f9f9f7;
+    background: linear-gradient(180deg, #ffa05a 0%, #ff8b3d 100%);
+    color: #0a0b14;
+    box-shadow:
+        0 8px 24px rgba(255, 139, 61, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 .btn-primary:hover {
-    background: #2a2a26;
-    box-shadow: 0 10px 24px rgba(28, 28, 26, 0.18);
+    box-shadow:
+        0 12px 28px rgba(255, 139, 61, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .btn-ghost {
-    background: transparent;
-    color: #1a1a18;
-    border-color: rgba(28, 28, 26, 0.14);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ink);
+    border-color: rgba(255, 255, 255, 0.10);
 }
-.btn-ghost:hover {
-    background: rgba(28, 28, 26, 0.04);
-}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.08); }
+
 .btn-danger {
     background: transparent;
-    color: #a25f56;
-    border-color: rgba(162, 95, 86, 0.22);
+    color: var(--coral);
+    border-color: rgba(255, 92, 92, 0.32);
 }
-.btn-danger:hover {
-    background: rgba(162, 95, 86, 0.08);
-}
+.btn-danger:hover { background: rgba(255, 92, 92, 0.10); }
 
-/* Underlined input */
+/* Inputs */
 .line-input {
     width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(28, 28, 26, 0.14);
-    padding: 0.6rem 0.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 0.55rem 0.1rem;
     font-family: "Manrope", sans-serif;
     font-size: 0.95rem;
-    color: #1a1a18;
+    color: var(--ink);
     outline: none;
     transition: border-color 0.2s ease;
 }
-.line-input::placeholder {
-    color: #8f8f8a;
-}
-.line-input:focus {
-    border-color: #1a1a18;
-}
+.line-input::placeholder { color: var(--ink-mute); }
+.line-input:focus { border-color: var(--saffron); }
+.line-input::-webkit-calendar-picker-indicator { filter: invert(0.7); }
 
 .label {
-    font-size: 0.7rem;
+    font-size: 0.66rem;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: #8f8f8a;
-    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--ink-mute);
+    font-weight: 700;
+    font-family: "Manrope", sans-serif;
 }
 
+/* Segmented control */
 .seg {
     display: inline-flex;
-    background: rgba(28, 28, 26, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 999px;
     padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .seg button {
     border: 0;
     background: transparent;
-    padding: 0.45rem 0.95rem;
+    padding: 0.4rem 0.9rem;
     border-radius: 999px;
     font-family: "Manrope", sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    color: #5e5e5a;
+    color: var(--ink-soft);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 .seg button.active {
-    background: #1a1a18;
-    color: #f9f9f7;
-    box-shadow: 0 4px 14px rgba(28, 28, 26, 0.18);
-}
-.seg.income button.active {
-    background: #4c7a5d;
+    color: #0a0b14;
 }
 .seg.expense button.active {
-    background: #a25f56;
+    background: var(--coral);
+    box-shadow: 0 4px 14px rgba(255, 92, 92, 0.32);
+}
+.seg.income button.active {
+    background: var(--emerald);
+    color: #0a0b14;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.32);
 }
 
+/* Chips */
 .chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.7rem;
-    background: rgba(28, 28, 26, 0.04);
+    gap: 0.4rem;
+    padding: 0.28rem 0.7rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
-    font-size: 0.72rem;
-    color: #5e5e5a;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
     font-weight: 600;
-    letter-spacing: 0.02em;
-    border: 1px solid rgba(28, 28, 26, 0.06);
+    letter-spacing: 0.03em;
+}
+.chip-live {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.32);
+    color: var(--emerald);
+}
+.chip-warn {
+    background: rgba(255, 92, 92, 0.10);
+    border-color: rgba(255, 92, 92, 0.28);
+    color: var(--coral);
+}
+.chip-gold {
+    background: rgba(244, 201, 93, 0.10);
+    border-color: rgba(244, 201, 93, 0.28);
+    color: var(--gold);
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 999px;
     display: inline-block;
 }
+.dot-pulse {
+    animation: dot-pulse 1.6s ease-in-out infinite;
+    box-shadow: 0 0 0 0 currentColor;
+}
+@keyframes dot-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+    70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
 
+/* Divider */
 .divider {
     height: 1px;
-    background: rgba(28, 28, 26, 0.08);
+    background: rgba(255, 255, 255, 0.08);
     width: 100%;
 }
 
-/* Number ticker */
+/* Tabular numbers */
 .tabular {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
 }
+
+/* Card hover */
+.card-hover {
+    transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Progress bars */
+.progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+.progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--saffron), var(--gold));
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.progress-fill.healthy { background: linear-gradient(90deg, var(--emerald), var(--teal)); }
+.progress-fill.warn { background: linear-gradient(90deg, var(--marigold), var(--gold)); }
+.progress-fill.over { background: linear-gradient(90deg, var(--coral), #ff8b3d); }
+
+/* Gradient text */
+.gradient-text {
+    background: linear-gradient(135deg, #ff8b3d 0%, #f4c95d 60%, #2dd4bf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Floating add button */
+.fab {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 50;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffa05a 0%, #ff8b3d 100%);
+    color: #0a0b14;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 18px 40px rgba(255, 139, 61, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    border: none;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.fab:hover { transform: translateY(-2px) scale(1.04); }
+.fab:active { transform: translateY(0) scale(1); }

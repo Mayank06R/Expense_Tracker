@@ -1,65 +1,95 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import Header from "../components/Header";
-import BalanceHero from "../components/BalanceHero";
-import AddTransactionForm from "../components/AddTransactionForm";
-import TransactionList from "../components/TransactionList";
-import CategoryDonut from "../components/CategoryDonut";
-import SpendingTrend from "../components/SpendingTrend";
+import DashboardHero from "../components/DashboardHero";
+import MonthlyIncomeCard from "../components/MonthlyIncomeCard";
+import { TotalSpentCard, AvailableBalanceCard, SavingsRateCard } from "../components/StatsRow";
+import MTDBudgetCard from "../components/MTDBudgetCard";
+import { DailyAverageCard, LargestTransactionCard } from "../components/SecondaryStats";
+import SpendingHabitsCard from "../components/SpendingHabitsCard";
+import DailySpendingChart from "../components/DailySpendingChart";
+import CategoryBreakdown3D from "../components/CategoryBreakdown3D";
+import BudgetProgressCard from "../components/BudgetProgressCard";
+import RecentTransactionsCard from "../components/RecentTransactionsCard";
+import AddTransactionDialog from "../components/AddTransactionDialog";
+import AllTransactionsSheet from "../components/AllTransactionsSheet";
 import ThreeBackground from "../components/ThreeBackground";
 
 export default function Dashboard() {
-  const [pulse, setPulse] = useState(0);
+  const [addOpen, setAddOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
     <div className="grain" data-testid="dashboard">
-      <ThreeBackground pulseKey={pulse} />
+      <ThreeBackground />
       <div className="relative" style={{ zIndex: 1 }}>
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-12">
-          <Header />
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+          <Header onAdd={() => setAddOpen(true)} />
+          <DashboardHero />
 
-          <div className="pt-2 pb-6">
-            <h2
-              className="font-serif tracking-tight"
-              style={{
-                fontSize: "clamp(2rem, 4vw, 3.2rem)",
-                color: "#1A1A18",
-                fontWeight: 500,
-                lineHeight: 1.05,
-              }}
-              data-testid="page-title"
-            >
-              An <em style={{ fontStyle: "italic", color: "#4C7A5D" }}>honest</em> view
-              <br />
-              of your money.
-            </h2>
-            <p className="mt-3 max-w-xl text-[15px]" style={{ color: "#5E5E5A" }}>
-              Log a moment, watch the aura breathe. Aura is a quiet, frontend-only
-              tracker — your data lives only on this device.
-            </p>
+          {/* Row 1: 4 stat cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <MonthlyIncomeCard />
+            <TotalSpentCard />
+            <AvailableBalanceCard />
+            <SavingsRateCard />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-12">
-            <div className="lg:col-span-3 space-y-6">
-              <BalanceHero />
-              <AddTransactionForm onAdded={() => setPulse((p) => p + 1)} />
-              <SpendingTrend />
+          {/* Row 2: MTD budget (spans 2) + Daily Average + Largest */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mt-5">
+            <div className="lg:col-span-2">
+              <MTDBudgetCard />
             </div>
-            <div className="lg:col-span-2 space-y-6">
-              <CategoryDonut />
-              <TransactionList />
-            </div>
+            <DailyAverageCard />
+            <LargestTransactionCard />
+          </div>
+
+          {/* Row 3: Spending Habits */}
+          <div className="mt-5">
+            <SpendingHabitsCard />
+          </div>
+
+          {/* Row 4: Daily Spending bar chart */}
+          <div className="mt-5">
+            <DailySpendingChart />
+          </div>
+
+          {/* Row 5: 3D Category Breakdown + Budget Progress */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+            <CategoryBreakdown3D />
+            <BudgetProgressCard />
+          </div>
+
+          {/* Row 6: Recent Transactions */}
+          <div className="mt-5">
+            <RecentTransactionsCard onViewAll={() => setSheetOpen(true)} />
           </div>
 
           <footer
-            className="py-8 text-xs flex items-center justify-between"
-            style={{ color: "#8F8F8A" }}
+            className="py-10 mt-4 text-xs flex flex-col sm:flex-row items-center justify-between gap-2"
+            style={{ color: "#6B6B73" }}
             data-testid="footer"
           >
-            <span>© Aura · localStorage-only · no servers, no tracking</span>
-            <span className="font-serif italic">a quiet ritual for money</span>
+            <span>© Hisaab · localStorage-only · no servers, no tracking</span>
+            <span className="font-serif italic" style={{ color: "#7A7A83" }}>
+              an honest mirror of your spending
+            </span>
           </footer>
         </div>
       </div>
+
+      {/* Floating Add button */}
+      <button
+        className="fab"
+        onClick={() => setAddOpen(true)}
+        data-testid="fab-add-transaction"
+        aria-label="Add transaction"
+      >
+        <Plus size={24} strokeWidth={2.4} />
+      </button>
+
+      <AddTransactionDialog open={addOpen} onClose={() => setAddOpen(false)} />
+      <AllTransactionsSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
     </div>
   );
 }

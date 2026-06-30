@@ -1,103 +1,91 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { MeshDistortMaterial, Float, Sphere } from "@react-three/drei";
-import { useRef, useMemo, useEffect } from "react";
+import { Float, Sphere } from "@react-three/drei";
+import { useRef, useMemo } from "react";
 import { useTransactions } from "../lib/store";
 
-function Blob({ pulseKey }) {
-  const mesh = useRef();
-  const matRef = useRef();
-  const pulse = useRef(0);
-
-  const { stats } = useTransactions();
-
-  // Determine target color & distortion from balance/expense ratio
-  const target = useMemo(() => {
-    const { income, expense, balance } = stats;
-    const ratio = income > 0 ? Math.min(1, expense / income) : expense > 0 ? 1 : 0;
-    const healthy = balance >= 0;
-    // sage -> terracotta gradient based on ratio
-    const sage = [0.298, 0.478, 0.365]; // #4C7A5D
-    const terra = [0.635, 0.373, 0.337]; // #A25F56
-    const t = healthy ? ratio * 0.7 : 1;
-    const color = sage.map((s, i) => s * (1 - t) + terra[i] * t);
-    const distort = healthy ? 0.32 + ratio * 0.18 : 0.55;
-    const speed = healthy ? 1.1 + ratio * 0.6 : 2.2;
-    const scale = healthy ? 1 + Math.min(0.35, balance / 8000) : 0.82;
-    return { color, distort, speed, scale };
-  }, [stats]);
-
-  useEffect(() => {
-    pulse.current = 1;
-  }, [pulseKey]);
+function Particles({ count = 60 }) {
+  const ref = useRef();
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3 + 0] = (Math.random() - 0.5) * 18;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
+    }
+    return arr;
+  }, [count]);
 
   useFrame((state, delta) => {
-    if (!mesh.current || !matRef.current) return;
-    // Smooth rotation
-    mesh.current.rotation.y += delta * 0.12;
-    mesh.current.rotation.x += delta * 0.04;
-
-    // Pulse decay
-    pulse.current = Math.max(0, pulse.current - delta * 1.6);
-    const pulseScale = 1 + pulse.current * 0.12;
-
-    // Lerp scale & material
-    const cur = mesh.current.scale.x;
-    const next = cur + (target.scale * pulseScale - cur) * Math.min(1, delta * 2.2);
-    mesh.current.scale.setScalar(next);
-
-    const m = matRef.current;
-    m.distort += (target.distort - m.distort) * Math.min(1, delta * 1.6);
-    m.speed += (target.speed - m.speed) * Math.min(1, delta * 1.6);
-    m.color.r += (target.color[0] - m.color.r) * Math.min(1, delta * 1.6);
-    m.color.g += (target.color[1] - m.color.g) * Math.min(1, delta * 1.6);
-    m.color.b += (target.color[2] - m.color.b) * Math.min(1, delta * 1.6);
+    if (ref.current) {
+      ref.current.rotation.y += delta * 0.02;
+      ref.current.rotation.x += delta * 0.005;
+    }
   });
 
   return (
-    <Float speed={1.2} rotationIntensity={0.3} floatIntensity={0.6}>
-      <Sphere ref={mesh} args={[1.6, 96, 96]} position={[2.2, 0.1, 0]}>
-        <MeshDistortMaterial
-          ref={matRef}
-          color="#4C7A5D"
-          distort={0.35}
-          speed={1.3}
-          roughness={0.55}
-          metalness={0.05}
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={positions.length / 3}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.04}
+        color="#F4C95D"
+        transparent
+        opacity={0.55}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
+
+function AmbientOrb({ position, color, scale = 1, speed = 1 }) {
+  const ref = useRef();
+  useFrame((state) => {
+    const t = state.clock.elapsedTime * speed;
+    if (ref.current) {
+      ref.current.position.y = position[1] + Math.sin(t * 0.5) * 0.3;
+      ref.current.rotation.y += 0.002;
+    }
+  });
+  return (
+    <Float speed={1.5} floatIntensity={1.4} rotationIntensity={0.3}>
+      <Sphere ref={ref} args={[scale, 48, 48]} position={position}>
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.45}
+          roughness={0.5}
+          transparent
+          opacity={0.5}
         />
       </Sphere>
     </Float>
   );
 }
 
-function SmallOrb() {
-  const ref = useRef();
-  useFrame((state, delta) => {
-    if (!ref.current) return;
-    ref.current.rotation.y -= delta * 0.18;
-    ref.current.rotation.z += delta * 0.05;
-  });
-  return (
-    <Float speed={1.6} rotationIntensity={0.5} floatIntensity={1.2}>
-      <Sphere ref={ref} args={[0.42, 64, 64]} position={[-3.2, -1.4, -1]}>
-        <MeshDistortMaterial color="#E8E2D2" distort={0.55} speed={1.8} roughness={0.35} />
-      </Sphere>
-    </Float>
-  );
-}
+export default function ThreeBackground() {
+  const { stats } = useTransactions();
+  // Subtle hint of palette based on savings health
+  const healthy = stats.savingsRate >= 0.2;
 
-export default function ThreeBackground({ pulseKey }) {
   return (
     <div className="three-canvas" data-testid="three-background" aria-hidden="true">
       <Canvas
-        camera={{ position: [0, 0, 6], fov: 38 }}
-        dpr={[1, 1.6]}
+        camera={{ position: [0, 0, 6], fov: 50 }}
+        dpr={[1, 1.4]}
         gl={{ antialias: true, alpha: true }}
       >
-        <ambientLight intensity={0.55} />
-        <directionalLight position={[5, 6, 4]} intensity={1.1} color="#fff7e8" />
-        <directionalLight position={[-4, -2, 3]} intensity={0.4} color="#a8c4b3" />
-        <Blob pulseKey={pulseKey} />
-        <SmallOrb />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[3, 3, 4]} intensity={0.5} color="#FFD9A8" />
+        <Particles count={70} />
+        <AmbientOrb position={[-4.2, 1.6, -2]} color={healthy ? "#10B981" : "#FF5C5C"} scale={0.6} speed={0.6} />
+        <AmbientOrb position={[4.6, -1.4, -3]} color="#FF8B3D" scale={0.5} speed={0.8} />
+        <AmbientOrb position={[2.5, 2.4, -4]} color="#A78BFF" scale={0.35} speed={1.0} />
       </Canvas>
     </div>
   );

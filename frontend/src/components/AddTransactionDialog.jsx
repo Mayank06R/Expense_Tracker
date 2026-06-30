@@ -60,16 +60,24 @@ export default function AddTransactionDialog({ open, onClose }) {
             onClick={onClose}
             data-testid="add-transaction-overlay"
           />
-          <motion.form
-            onSubmit={submit}
-            initial={{ opacity: 0, y: 30, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.97 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[min(560px,calc(100vw-32px))] max-h-[90vh] overflow-y-auto thin-scroll glass-strong rounded-3xl p-7"
-            data-testid="add-transaction-dialog"
-            onClick={(e) => e.stopPropagation()}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[101] overflow-y-auto thin-scroll"
+            onClick={onClose}
+            data-testid="add-transaction-scroll-container"
           >
+            <motion.form
+              onSubmit={submit}
+              initial={{ opacity: 0, y: 30, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="relative my-10 mx-auto w-[min(560px,calc(100vw-32px))] glass-strong rounded-3xl p-7"
+              data-testid="add-transaction-dialog"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-serif tracking-tight" style={{ fontSize: "1.7rem", color: "#F5F2EA", fontWeight: 500 }}>
@@ -111,7 +119,6 @@ export default function AddTransactionDialog({ open, onClose }) {
                     style={{ fontSize: "2rem", padding: "0.2rem 0", color: "#F5F2EA" }}
                     data-testid="amount-input"
                     autoFocus
-                    required
                   />
                 </div>
               </div>
@@ -124,7 +131,6 @@ export default function AddTransactionDialog({ open, onClose }) {
                   onChange={(e) => setDate(e.target.value)}
                   className="line-input"
                   data-testid="date-input"
-                  required
                 />
               </div>
             </div>
@@ -175,7 +181,8 @@ export default function AddTransactionDialog({ open, onClose }) {
                 Save
               </button>
             </div>
-          </motion.form>
+            </motion.form>
+          </motion.div>
         </>
       )}
     </AnimatePresence>

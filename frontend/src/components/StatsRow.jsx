@@ -20,8 +20,9 @@ export function TotalSpentCard() {
 }
 
 export function AvailableBalanceCard() {
-  const { stats, monthlyIncome } = useTransactions();
-  const pct = monthlyIncome > 0 ? (stats.available / monthlyIncome) * 100 : 0;
+  const { stats } = useTransactions();
+  const denom = stats.effectiveIncome || 1;
+  const pct = (stats.available / denom) * 100;
   const positive = stats.available >= 0;
   return (
     <StatCard

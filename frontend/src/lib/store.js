@@ -10,9 +10,14 @@ const seedTransactions = () => {
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth();
+  // Monotonic offset so that within a seed day, ordering is stable AND
+  // the createdAt of any seed item is strictly older than `new Date()` taken later.
+  let seedSeq = 0;
 
   const mk = (day, monthOffset, type, category, amount, note) => {
-    const d = new Date(y, m + monthOffset, day, 12, 0, 0);
+    const d = new Date(y, m + monthOffset, day, 0, 0, 0);
+    // createdAt at midnight of the seed day plus a tiny per-item offset
+    const createdAt = new Date(d.getTime() + (seedSeq++)).toISOString();
     return {
       id: crypto.randomUUID(),
       type,
@@ -20,7 +25,7 @@ const seedTransactions = () => {
       amount,
       note,
       date: d.toISOString(),
-      createdAt: d.toISOString(),
+      createdAt,
     };
   };
 
@@ -64,8 +69,6 @@ const seedTransactions = () => {
     mk(26, 0, "expense", "healthcare", 1119, "Practo Consultation"),
     // Education 499
     mk(2, 0, "expense", "education", 499, "Udemy Course"),
-    // Income
-    mk(1, 0, "income", "salary", 75000, "Monthly salary"),
   ];
 
   const previous = [
@@ -96,7 +99,6 @@ const seedTransactions = () => {
     mk(25, -1, "expense", "healthcare", 1150, "Apollo Pharmacy"),
     mk(26, -1, "expense", "healthcare", 1500, "Practo"),
     mk(27, -1, "expense", "education", 499, "Udemy"),
-    mk(1, -1, "income", "salary", 75000, "Monthly salary"),
   ];
 
   return [...current, ...previous];
@@ -198,8 +200,9 @@ export function TransactionsProvider({ children }) {
         if (t.type === "expense") pExpense += amt;
       }
     }
-    const available = monthlyIncome - mExpense;
-    const savingsRate = monthlyIncome > 0 ? available / monthlyIncome : 0;
+    const available = (monthlyIncome + mIncome) - mExpense;
+    const effectiveIncome = monthlyIncome + mIncome;
+    const savingsRate = effectiveIncome > 0 ? available / effectiveIncome : 0;
     const today = ref.getDate();
     const dailyAvg = today > 0 ? mExpense / today : 0;
     const prevDays = new Date(prev.getFullYear(), prev.getMonth() + 1, 0).getDate();
@@ -224,6 +227,7 @@ export function TransactionsProvider({ children }) {
       monthExpense: mExpense,
       monthCount: mCount,
       available,
+      effectiveIncome,
       savingsRate,
       largest,
       dailyAvg,

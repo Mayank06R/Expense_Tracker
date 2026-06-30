@@ -1,0 +1,43 @@
+{
+  "summary": "Frontend-only Aura expense tracker tested end-to-end via Playwright on the preview URL. 11 of 12 requested behaviors pass. One real bug: newly-added transactions with today's date do NOT render at the top of Recent activity because the form converts the YYYY-MM-DD date input to midnight UTC, while the seeded 'today' demo rows use the current timestamp (later in the day), so new rows sort below seeded same-day rows. All other flows (add expense, add income with income-only category pills, invalid-amount toast + rejection, delete row, balance/income/expense recompute, category donut + 14-day trend rendering, CSV download with correct filename, Reset Demo restoring 6 entries, and localStorage persistence across reload) pass cleanly. Three.js background mounts. No runtime/page errors.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AddTransactionForm.jsx / TransactionList.jsx",
+        "issue": "Newly added transactions do not appear at the top of Recent activity when the form's Date input is today. Root cause: `new Date(date).toISOString()` where `date` is 'YYYY-MM-DD' yields T00:00:00Z (midnight UTC), but the seeded 'today' transactions in store.js use `new Date().toISOString()` which is the current wall-clock time. Since the list sorts descending by date, new same-day entries sort BELOW seeded rows. The spec explicitly requires 'the new row appears at top of Recent activity'.",
+        "selector": "[data-testid='transaction-list'] li:first-child",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "CategoryDonut / SpendingTrend",
+        "issues": ["Recharts logs repeated console warnings 'The width(-1) and height(-1) of chart should be greater than 0' during initial mount. Charts render correctly afterwards but the parent container width is briefly -1 (likely ResponsiveContainer measuring before the glass card has layout). Cosmetic / log noise only."]
+      }
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix new-transaction ordering: when adding a transaction in AddTransactionForm.jsx, if the selected date is today's local date, attach the current time (use `new Date()` for ISO instead of `new Date(date).toISOString()` for the today case), OR change TransactionList sort to use a stable creation-time tiebreaker (e.g., sort by `createdAt` first, then by `date`). This will make the new row appear at the top of Recent activity as the spec requires.",
+    "Optionally suppress the Recharts width=-1/height=-1 warnings by giving the chart wrappers a non-zero minHeight (e.g., minHeight: 220) before ResponsiveContainer first measures."
+  ],
+  "critical_code_review_comments": [
+    "store.js: addTransaction spreads `tx` AFTER `date: new Date().toISOString()` so the form's midnight ISO date overrides the wall-clock default — combined with the seed using wall-clock 'now', this causes the top-of-list bug above.",
+    "store.js seed() uses `crypto.randomUUID()` at module import time — fine for browsers but will throw in older runtimes; acceptable for this frontend.",
+    "Header.exportCSV creates a Blob+anchor.click() with no `document.body.appendChild`; works in modern Chromium but is slightly fragile in Firefox/Safari. Consider appending and removing the anchor.",
+    "Recharts ResponsiveContainer used without an explicit min height in CategoryDonut / SpendingTrend — produces width(-1) warnings on first paint."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (frontend-only app)", "frontend": "~92% (11/12 behaviors pass; ordering of new tx fails)"},
+  "test_credentials": "N/A (no auth, no backend)",
+  "seed_data_creation": "Used the app's own Reset Demo button to seed the 6-row demo dataset. Test rows were prefixed TEST_ and were either deleted in-test or cleared via Reset Demo at the end.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "App is 100% frontend at https://budget-dash-3d.preview.emergentagent.com. All required data-testid attributes exist and are reliable. To get a clean baseline either click [data-testid='reset-demo-button'] or run `localStorage.removeItem('aura.expense.tracker.v1')` then reload. After fix for the ordering bug, only retest: add-expense-then-verify-first-row-is-new and add-income-then-verify-first-row-is-new. All other flows (delete, persistence, CSV, charts, Reset Demo, invalid amount, income category pills) are already verified.",
+  "rca of the issue": "AddTransactionForm submit builds the new transaction with `date: new Date(date).toISOString()` where `date` is the <input type='date'> value (e.g. '2026-06-30'). JS parses that as UTC midnight => '2026-06-30T00:00:00.000Z'. store.js seed() builds 'today' demo rows with `new Date().toISOString()` which has the current time (e.g. '2026-06-30T07:39:14.xxxZ'). TransactionList sorts descending by `new Date(b.date) - new Date(a.date)`, so seeded today-rows (later timestamp) sort above the new row (midnight). Fix options: (1) in addTransaction, if the chosen date equals today's local date, store `new Date().toISOString()` instead of midnight; (2) add a `createdAt` timestamp on every transaction and use it as a tiebreaker in TransactionList sort."
+}

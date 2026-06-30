@@ -1,34 +1,165 @@
-.App-logo {
-    height: 40vmin;
+.App {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.three-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-}
-
-.App-link {
-    color: #61dafb;
-}
-
-@keyframes App-logo-spin {
+@keyframes float-up {
     from {
-        transform: rotate(0deg);
+        transform: translateY(10px);
+        opacity: 0;
     }
     to {
-        transform: rotate(360deg);
+        transform: translateY(0);
+        opacity: 1;
     }
+}
+
+.float-in {
+    animation: float-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Pill button */
+.btn-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 999px;
+    font-family: "Manrope", sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.01em;
+    transition:
+        transform 0.2s ease,
+        background-color 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.btn-pill:hover {
+    transform: translateY(-1px);
+}
+.btn-primary {
+    background: #1a1a18;
+    color: #f9f9f7;
+}
+.btn-primary:hover {
+    background: #2a2a26;
+    box-shadow: 0 10px 24px rgba(28, 28, 26, 0.18);
+}
+.btn-ghost {
+    background: transparent;
+    color: #1a1a18;
+    border-color: rgba(28, 28, 26, 0.14);
+}
+.btn-ghost:hover {
+    background: rgba(28, 28, 26, 0.04);
+}
+.btn-danger {
+    background: transparent;
+    color: #a25f56;
+    border-color: rgba(162, 95, 86, 0.22);
+}
+.btn-danger:hover {
+    background: rgba(162, 95, 86, 0.08);
+}
+
+/* Underlined input */
+.line-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(28, 28, 26, 0.14);
+    padding: 0.6rem 0.1rem;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.95rem;
+    color: #1a1a18;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.line-input::placeholder {
+    color: #8f8f8a;
+}
+.line-input:focus {
+    border-color: #1a1a18;
+}
+
+.label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #8f8f8a;
+    font-weight: 600;
+}
+
+.seg {
+    display: inline-flex;
+    background: rgba(28, 28, 26, 0.05);
+    border-radius: 999px;
+    padding: 4px;
+}
+.seg button {
+    border: 0;
+    background: transparent;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    font-family: "Manrope", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #5e5e5a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.seg button.active {
+    background: #1a1a18;
+    color: #f9f9f7;
+    box-shadow: 0 4px 14px rgba(28, 28, 26, 0.18);
+}
+.seg.income button.active {
+    background: #4c7a5d;
+}
+.seg.expense button.active {
+    background: #a25f56;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    background: rgba(28, 28, 26, 0.04);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    color: #5e5e5a;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid rgba(28, 28, 26, 0.06);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.divider {
+    height: 1px;
+    background: rgba(28, 28, 26, 0.08);
+    width: 100%;
+}
+
+/* Number ticker */
+.tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
 }
